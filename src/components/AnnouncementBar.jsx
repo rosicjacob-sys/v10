@@ -3,7 +3,7 @@ import { useMarquee } from '../lib/useMarquee'
 import { reducedMotion } from '../lib/env'
 
 const PROMISE =
-  'HPLC-VERIFIED, EVERY BATCH · PUBLIC COA PER LOT · COLD-CHAIN SHIPPING · FOR RESEARCH USE ONLY · '
+  'EVERY PEAK, RESOLVED TO BASELINE · ONE READOUT PER LOT · HPLC + MASS CONFIRMED · FOR LABORATORY RESEARCH USE ONLY · '
 
 export default function AnnouncementBar() {
   const track = useRef(null)

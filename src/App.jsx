@@ -4,18 +4,24 @@ import { ScrollTrigger } from 'gsap/ScrollTrigger'
 import { CartProvider } from './lib/cart'
 import { startLenis } from './lib/scroll'
 import { MQ_MOTION_OK } from './lib/env'
-import AtelierStage from './three/AtelierStage'
+import ApexStage from './three/ApexStage'
 import AnnouncementBar from './components/AnnouncementBar'
 import Boot from './components/Boot'
 import Nav from './components/Nav'
 import Hero from './components/Hero'
+import Thesis from './components/Thesis'
+import Instrument from './components/Instrument'
+import Lens from './components/Lens'
+import Verify from './components/Verify'
 import Marquee from './components/Marquee'
 import Catalog from './components/Catalog'
-import Process from './components/Process'
-import Verify from './components/Verify'
+import Compounds from './components/Compounds'
+import MassSpec from './components/MassSpec'
+import ScanRecon from './components/ScanRecon'
 import BatchRail from './components/BatchRail'
-import Order from './components/Order'
 import ColdChain from './components/ColdChain'
+import Formula from './components/Formula'
+import Order from './components/Order'
 import Faq from './components/Faq'
 import FinalCta from './components/FinalCta'
 import Footer from './components/Footer'
@@ -40,18 +46,24 @@ export default function App() {
       <Nav />
       <main>
         <Hero />
-        <Marquee />
-        <Catalog />
-        <Process />
+        <Thesis />
+        <Instrument />
+        <Lens />
         <Verify />
+        <Catalog />
+        <Compounds />
+        <MassSpec />
+        <ScanRecon />
         <BatchRail />
-        <Order />
         <ColdChain />
+        <Formula />
+        <Marquee />
+        <Order />
         <Faq />
         <FinalCta />
       </main>
       <Footer />
-      <AtelierStage />
+      <ApexStage />
       <StickyCart />
     </CartProvider>
   )

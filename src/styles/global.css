@@ -5,24 +5,24 @@
    ============================================================ */
 
 :root {
-  --canvas: #05070d; /* abyss */
-  --panel: #0a0e1a; /* ink — slightly-lifted panels */
-  --scrim: #02030a; /* vignette / cabins behind text */
-  --ink: #c9d4e6; /* phosphor off-white = primary text */
-  --ink-soft: #6b7a93; /* dim slate = labels/mono */
-  --line: rgba(201, 212, 230, 0.12);
-  --accent: #34d9ff; /* set at runtime to the active peptide's emission */
-  --accent-deep: #34d9ff;
+  --canvas: #070a0f; /* detector-dark graphite */
+  --panel: #0e141c; /* data panels / COA sheets */
+  --scrim: #05080c; /* vignette / cabins behind text */
+  --ink: #e8f0f6; /* resolved signal = primary text */
+  --ink-soft: #7c93a6; /* axis-tick slate = labels/mono */
+  --line: #1c2a38; /* hairline chrome / tick-grid */
+  --accent: #2e9be6; /* set at runtime to the active compound's signal color */
+  --accent-deep: #2e9be6;
 
-  /* base-call palette — used ONLY in the mono ATGC readout */
+  /* base-call palette — retained for the mono readout accents */
   --base-a: #35e0a1;
   --base-t: #ff5d5d;
   --base-c: #3b82f6;
   --base-g: #f5a524;
 
-  --font-display: 'Fraunces Variable', 'Fraunces', Georgia, serif;
-  --font-body: 'Geist Variable', 'Geist', system-ui, sans-serif;
-  --font-mono: 'Geist Mono Variable', 'Geist Mono', ui-monospace, monospace;
+  --font-display: 'Archivo Variable', 'Arial Black', system-ui, sans-serif;
+  --font-body: 'Inter Variable', 'Inter', system-ui, sans-serif;
+  --font-mono: 'IBM Plex Mono', ui-monospace, 'SFMono-Regular', monospace;
 
   --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
   --ease-snap: cubic-bezier(0.34, 1.56, 0.64, 1);
@@ -52,8 +52,8 @@ body {
   line-height: 1.62;
   color: var(--ink);
   background:
-    radial-gradient(1400px 900px at 72% 12%, #0c1220 0%, transparent 55%),
-    radial-gradient(1200px 1400px at 50% 120%, #02030a 0%, transparent 60%),
+    radial-gradient(1500px 1000px at 62% 8%, #0d1620 0%, transparent 58%),
+    radial-gradient(1200px 1400px at 50% 122%, #04070b 0%, transparent 60%),
     var(--canvas);
   background-attachment: fixed;
 }
@@ -1658,107 +1658,215 @@ html.force-rm .proc-hint {
 html.force-rm .mk-seq { transform: none !important; }
 html.force-rm .boot { display: none; }
 
-
 /* ============================================================
-   NOCTA overrides — editorial serif, floating dark cabins, glow
+   APEXION overrides — instrument-dark; the point-field READOUT glows
+   behind frosted data cabins. Wide grotesk faceplate type, mono readouts.
    ============================================================ */
 
-/* strand renders BEHIND content (readability first); glows through the
-   transparent right side of every section */
+/* the field renders BEHIND content; glows through the transparent sections */
 main { position: relative; z-index: 2; }
 .vial-stage { z-index: 1; }
-.vial-fallback { z-index: 0; }
+.apex-fallback { z-index: 0; }
 .nav { z-index: 100; }
 .sticky-cart { z-index: 120; }
 .boot { z-index: 400; }
 
-/* sections float over the abyss — no opaque bands hiding the strand */
-.catalog, .process, .proc-pin, .verify, .batches, .order, .cold,
-.faq, .final-cta, .footer, .marquee, .announce {
+/* every section floats over the detector field — no opaque bands */
+.hero, .thesis, .instrument, .lens, .catalog, .verify, .batches, .order,
+.cold, .faq, .final-cta, .footer, .marquee, .announce, .massspec, .scan,
+.formula, .focus {
   background: transparent !important;
 }
 
-/* display type: light, high-contrast Fraunces catching the bloom */
-.section-title, .hero-title, .final-title, .verify-quote,
+/* ---- display type: Archivo, wide instrument-faceplate grotesk ---- */
+.section-title, .hero-title, .final-title, .verify-quote, .focus-name,
 .nav-menu a {
-  font-weight: 360 !important;
+  font-family: var(--font-display) !important;
+  font-weight: 800 !important;
+  font-variation-settings: 'wght' 800, 'wdth' 118;
   text-transform: none !important;
-  letter-spacing: -0.015em;
+  letter-spacing: -0.01em;
+  line-height: 1.02;
 }
-.hero-title { font-weight: 340 !important; }
-.section-title em, .hero-title em, .verify-quote em, .final-title em, .cold-text em {
-  font-weight: 400 !important;
-  text-shadow: 0 0 34px color-mix(in srgb, var(--accent) 55%, transparent);
+.hero-title { font-variation-settings: 'wght' 800, 'wdth' 112; }
+.section-title em, .hero-title em, .verify-quote em, .final-title em,
+.cold-text em, .focus-name em, .apex-lead em {
+  font-style: normal;
+  color: var(--accent);
+  text-shadow: 0 0 30px color-mix(in srgb, var(--accent) 55%, transparent);
 }
-/* nav + footer wordmark stays a tight small-caps serif */
-.nav-wordmark, .footer-logo { text-transform: none; letter-spacing: 0.01em; }
-.nav-word2 { color: var(--ink-soft); }
+.nav-wordmark, .footer-logo {
+  font-family: var(--font-display);
+  font-weight: 800;
+  font-variation-settings: 'wght' 800, 'wdth' 120;
+  text-transform: none;
+  letter-spacing: 0.02em;
+}
+.nav-word2 { color: var(--ink-soft); font-variation-settings: 'wght' 500, 'wdth' 100; }
 
-/* glassy panels get a faint inner glow + hairline instead of solid fills */
-.grid-cell, .order-card, .batch-chip, .bundle-card {
+/* ---- mono readouts: IBM Plex Mono, phosphor labels ---- */
+.mono-label, .eyebrow, .mono {
+  font-family: var(--font-mono);
+  color: var(--ink-soft);
+  letter-spacing: 0.06em;
+}
+.eyebrow { text-transform: uppercase; }
+.eyebrow::before { box-shadow: 0 0 10px var(--accent); }
+
+/* ---- buttons: solid signal-color chips w/ dark text + glow ---- */
+.btn, .pep-add, .nav-cta {
+  background: var(--accent);
+  color: #05080c;
+  border: none;
+  font-weight: 600;
+  box-shadow: 0 0 26px -6px var(--accent);
+}
+.btn::after { background: linear-gradient(105deg, transparent, rgba(255,255,255,0.35), transparent); }
+.btn-ghost, .grid-add {
   border: 1px solid var(--line);
-  backdrop-filter: blur(3px);
-  -webkit-backdrop-filter: blur(3px);
+  color: var(--ink);
+  background: rgba(14,20,28,0.5);
+}
+::selection { background: var(--accent); color: #05080c; }
+
+/* ============================================================
+   New APEXION zones — long-scroll tour of field states
+   ============================================================ */
+.apex-section {
+  position: relative;
+  padding-block: clamp(6rem, 13vh, 12rem);
+  min-height: 92vh;
+  display: flex;
+  align-items: center;
+}
+.apex-section .container { width: 100%; }
+
+/* frosted data cabin — the content shield that keeps text legible over the
+   field (carried lesson: background spectacle needs a foreground guarantee) */
+.apex-cabin {
+  position: relative;
+  background: rgba(9, 13, 20, 0.82);
+  backdrop-filter: blur(11px) saturate(1.15);
+  -webkit-backdrop-filter: blur(11px) saturate(1.15);
+  border: 1px solid var(--line);
+  border-radius: 16px;
+  padding: clamp(1.6rem, 3.5vw, 3rem);
+  box-shadow: 0 30px 90px -50px #000;
+}
+.apex-cabin.container { max-width: 74ch; margin-inline: auto; }
+.apex-lead {
+  color: var(--ink);
+  font-size: clamp(1.02rem, 1.5vw, 1.24rem);
+  line-height: 1.6;
+  max-width: 62ch;
+  margin-top: 1.2rem;
+}
+.apex-note {
+  margin-top: 1.6rem;
+  font-size: 0.72rem;
+  color: var(--ink-soft);
+  border-top: 1px solid var(--line);
+  padding-top: 1rem;
+}
+.apex-section .eyebrow { margin-bottom: 1.1rem; }
+.apex-section .section-title { font-size: clamp(2rem, 5vw, 3.5rem); }
+
+/* instrument spec grid */
+.spec-grid { list-style: none; padding: 0; margin: 1.8rem 0 0; display: grid; gap: 0; }
+.spec-row {
+  display: flex; justify-content: space-between; gap: 1rem;
+  padding: 0.85rem 0; border-top: 1px solid var(--line);
+}
+.spec-row:last-child { border-bottom: 1px solid var(--line); }
+.spec-k { color: var(--ink-soft); }
+.spec-v { color: var(--ink); }
+
+/* refraction lens zone — copy sits left, WebGL lens rises center/right */
+.lens-grid { display: block; }
+.lens-copy { max-width: 46ch; }
+
+/* compound focus cards */
+.focus { min-height: 100vh; }
+.focus-right .container { display: flex; justify-content: flex-end; }
+.focus-card { max-width: 52ch; }
+.focus-eyebrow { display: flex; align-items: center; gap: 0.6rem; color: var(--pep, var(--accent)); }
+.focus-eyebrow::before { background: var(--pep, var(--accent)); box-shadow: 0 0 10px var(--pep, var(--accent)); }
+.focus-index { color: var(--pep, var(--accent)); opacity: 0.7; }
+.focus-name {
+  font-size: clamp(2.6rem, 7vw, 5rem) !important;
+  margin: 0.4rem 0 0.3rem;
+  color: var(--ink);
+}
+.focus-tag { color: var(--ink-soft); margin-bottom: 1rem; }
+.focus-blurb { color: var(--ink); max-width: 46ch; }
+.focus-readout {
+  display: flex; gap: 2.2rem; margin: 1.6rem 0 0.8rem; flex-wrap: wrap;
+}
+.ro-cell { display: flex; flex-direction: column; gap: 0.25rem; }
+.ro-num {
+  font-family: var(--font-display); font-weight: 800;
+  font-variation-settings: 'wght' 800, 'wdth' 110;
+  font-size: 1.7rem; color: var(--pep, var(--accent));
+}
+.ro-cell .mono-label { font-size: 0.66rem; }
+.focus-formula {
+  font-family: var(--font-mono); color: var(--ink-soft);
+  letter-spacing: 0.08em; margin: 0.6rem 0 1rem; font-size: 1rem;
+}
+.focus-ruo { font-size: 0.68rem; color: var(--ink-soft); border-top: 1px solid var(--line); padding-top: 0.9rem; }
+
+/* mass-spec + formula lists */
+.mz-list, .formula-list { list-style: none; padding: 0; margin: 1.8rem 0 0; }
+.mz-row, .formula-row {
+  display: flex; align-items: baseline; gap: 1rem; flex-wrap: wrap;
+  padding: 0.9rem 0; border-top: 1px solid var(--line);
+}
+.mz-row:last-child, .formula-row:last-child { border-bottom: 1px solid var(--line); }
+.mz-name, .formula-name { color: var(--pep, var(--ink)); min-width: 10ch; }
+.mz-mass, .formula-value {
+  font-family: var(--font-mono); color: var(--ink); font-size: 1.05rem; flex: 1;
+}
+.mz-mode { color: var(--ink-soft); font-size: 0.7rem; }
+
+/* ---- content shields on the reused commerce blocks ---- */
+.pep-list, .grid-cell, .verify-body, .verify-chroma, .verify-stats,
+.order-cards, .order-side, .faq-list, .batch-chip, .cold-text {
+  position: relative;
+  background: rgba(9, 13, 20, 0.82);
+  backdrop-filter: blur(10px) saturate(1.12);
+  -webkit-backdrop-filter: blur(10px) saturate(1.12);
+  border: 1px solid var(--line);
+  border-radius: 16px;
+}
+.pep-list { padding: 0.4rem 1.1rem; border-top: 1px solid var(--line); }
+.pep-row:last-child { border-bottom: none; }
+.pep-row.is-active {
+  background: linear-gradient(90deg, color-mix(in srgb, var(--pep) 12%, transparent), transparent 70%) !important;
+}
+.batch-chip { border-radius: 12px; }
+.verify-chroma, .verify-stats { padding: 1.2rem 1.4rem; margin-top: 1.2rem; }
+.order-card {
+  border: 1px solid var(--line);
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
 }
 .order-card.is-selected {
   border-color: color-mix(in srgb, var(--pep) 60%, transparent);
   box-shadow: 0 0 0 1px var(--pep), 0 20px 60px -20px var(--pep);
 }
-.pep-row.is-active {
-  background: linear-gradient(90deg, color-mix(in srgb, var(--pep) 10%, transparent), transparent 70%) !important;
-}
 
-/* eyebrow marker glows */
-.eyebrow::before { box-shadow: 0 0 10px var(--accent); }
-
-/* mono data reads as a phosphor readout */
-.mono-label, .eyebrow { color: var(--ink-soft); }
-
-/* buttons: shine sweep tuned for dark */
-.btn::after { background: linear-gradient(105deg, transparent, rgba(5,7,13,0.5), transparent); }
-
-/* legibility cabin behind copy-heavy left columns */
-.hero-copy, .proc-rail, .verify .container > *, .catalog .container > .section-title,
-.order-right, .faq-inner, .final-inner {
-  position: relative;
-}
-
-/* selection uses accent on dark */
-::selection { background: var(--accent); color: #05070d; }
-
-
-/* NOCTA mobile: strand recedes to a backdrop; scrim keeps copy readable */
+/* ============================================================
+   APEXION mobile — field recedes to a faint backdrop; cabins solid
+   ============================================================ */
 @media (max-width: 799.98px) {
-  .vial-stage { opacity: 0.55; }
+  .vial-stage { opacity: 0.6; }
+  .apex-section { min-height: auto; padding-block: clamp(3.5rem, 9vh, 6rem); }
+  .focus-right .container { justify-content: flex-start; }
   .hero::after {
     content: '';
-    position: absolute;
-    inset: 0;
-    background: linear-gradient(90deg, var(--canvas) 30%, transparent 85%);
-    pointer-events: none;
-    z-index: -1;
+    position: absolute; inset: 0;
+    background: linear-gradient(180deg, transparent 0%, color-mix(in srgb, var(--canvas) 55%, transparent) 60%);
+    pointer-events: none; z-index: -1;
   }
   .hero-copy { position: relative; z-index: 1; }
 }
-
-/* NOCTA content shield — mid/bottom content blocks are frosted cabins floating
-   over the abyss: near-opaque glass + backdrop blur, so the strand can pass
-   behind them but can never bury data. Set-pieces (hero, process) stay bare. */
-.pep-list,
-.grid-cell,
-.verify-body,
-.order-cards,
-.order-side,
-.faq-list,
-.batch-chip,
-.cold-text {
-  position: relative;
-  background: rgba(7, 10, 18, 0.86);
-  backdrop-filter: blur(9px) saturate(1.15);
-  -webkit-backdrop-filter: blur(9px) saturate(1.15);
-  border: 1px solid var(--line);
-  border-radius: 18px;
-}
-.pep-list { padding: 0.4rem 1.1rem; border-top: 1px solid var(--line); }
-.pep-row:last-child { border-bottom: none; }
-.batch-chip { border-radius: 12px; }

@@ -9,15 +9,17 @@ export const PEPTIDES = [
     tag: 'COPPER TRIPEPTIDE-1',
     hue: '#1F6FEB', // legacy powder tint (light theme)
     hueDeep: '#0B3D91',
-    emit: '#34D9FF', // NOCTA emission — Cerenkov cyan
-    ui: '#34D9FF',
+    emit: '#2E9BE6', // APEXION signal — copper-cyan
+    ui: '#2E9BE6',
     codon: 'GGA·CAC·AAG',
+    formula: 'C₁₄H₂₄N₆O₄·Cu',
     powder: 'blue',
     seq: 'Gly-His-Lys · Cu²⁺',
     purity: 99.2,
+    rt: '4.82', // HPLC retention time, min
     mass: '403.9 g/mol', // the Cu(II) complex, not the apo-peptide (340.4)
     price: 46,
-    blurb: 'Copper-bound tripeptide. Studied in skin-remodeling and matrix-repair research.',
+    blurb: 'A copper-complexed tripeptide reference standard, supplied as a blue lyophilised powder. Characterised by HPLC and mass to a resolved baseline; every lot ships with its own readout.',
     research: 'Extracellular matrix · fibroblast · angiogenesis models',
   },
   {
@@ -28,15 +30,17 @@ export const PEPTIDES = [
     tag: 'NNMT INHIBITOR',
     hue: '#F5871F', // legacy powder tint
     hueDeep: '#B8560A',
-    emit: '#FFB020', // NOCTA emission — firefly amber
-    ui: '#FFB020',
+    emit: '#F5822B', // APEXION signal — detector amber
+    ui: '#F5822B',
     codon: 'ATG·CAA·TAC',
+    formula: 'C₁₀H₁₂N₂',
     powder: 'orange',
     seq: 'C₁₀H₁₂N₂ · small molecule',
     purity: 98.7,
+    rt: '3.14',
     mass: '160.2 g/mol',
     price: 64,
-    blurb: 'Small-molecule NNMT inhibitor. Studied in adipocyte and metabolic-flux research.',
+    blurb: 'A small-molecule research compound, supplied as an orange powder. Each batch arrives with its chromatogram, mass fingerprint, and certificate of analysis.',
     research: 'NNMT · NAD⁺ salvage · adipose models',
   },
   {
@@ -47,15 +51,17 @@ export const PEPTIDES = [
     tag: 'GGG TRI-AGONIST',
     hue: '#F2F4F7', // legacy powder tint
     hueDeep: '#B9C0C9',
-    emit: '#EAF2FF', // NOCTA emission — phosphor white (glows on black)
-    ui: '#EAF2FF',
+    emit: '#EAF2F8', // APEXION signal — near-clear cool white
+    ui: '#EAF2F8',
     codon: 'TAC·AGC·GGA',
+    formula: 'C₂₂₁H₃₄₂N₄₆O₆₈',
     powder: 'white',
     seq: '39-aa peptide · GIP/GLP-1/GCG',
     purity: 99.5,
+    rt: '6.07',
     mass: '4731 g/mol',
     price: 189,
-    blurb: 'Triple-receptor agonist peptide. Studied in energy-balance and metabolic research.',
+    blurb: 'A peptide reference standard, supplied as a white lyophilised powder. Every lot is characterised and archived; no lot leaves the bench without a baseline.',
     research: 'GIP · GLP-1 · glucagon receptor models',
   },
 ]
@@ -103,12 +109,13 @@ export const DISCLAIMER =
   'For laboratory and research use only. Not for human or veterinary use. Not a drug, dietary supplement, or food. Products are not intended to diagnose, treat, cure, or prevent any disease. Sold only to qualified researchers; the purchaser assumes all responsibility for safe handling and lawful use.'
 
 export const MARQUEE_WORDS = [
-  'HPLC-VERIFIED',
-  'PUBLIC COA',
-  'LYOPHILIZED',
-  'COLD-CHAIN',
-  '≥98% PURITY',
-  'ARGON-SEALED',
-  'BATCH-TRACEABLE',
+  'DETECTED',
+  'CHARACTERIZED',
+  'ARCHIVED',
+  '≥99% BY HPLC',
+  'MASS-CONFIRMED',
+  'RESOLVED TO BASELINE',
+  'ONE LOT · ONE READOUT',
+  'COA PER BATCH',
   'RESEARCH USE ONLY',
 ]

@@ -15,10 +15,10 @@ export default function Footer() {
         <div className="footer-brand">
           <p className="footer-logo">
             <VialGlyph />
-            <span>NOCTA</span>
+            <span>APEXION</span>
           </p>
-          <p className="mono-label">RESEARCH-GRADE · BATCH-TRACEABLE</p>
-          <p className="footer-tag">Research peptides, sequenced in the dark.</p>
+          <p className="mono-label">CHARACTERIZED · BATCH-TRACEABLE</p>
+          <p className="footer-tag">Every peak, resolved to baseline.</p>
         </div>
         <nav className="footer-col" aria-label="Shop">
           <p className="mono-label footer-head">CATALOG</p>
@@ -29,13 +29,13 @@ export default function Footer() {
         </nav>
         <nav className="footer-col" aria-label="Standards">
           <p className="mono-label footer-head">STANDARDS</p>
-          <a href="#process" onClick={(e) => go(e, '#process')}>Our process</a>
-          <a href="#verify" onClick={(e) => go(e, '#verify')}>Verification &amp; COAs</a>
+          <a href="#verify" onClick={(e) => go(e, '#verify')}>How we verify</a>
+          <a href="#reviews" onClick={(e) => go(e, '#reviews')}>COA &amp; batch record</a>
           <a href="#faq" onClick={(e) => go(e, '#faq')}>FAQ + shipping</a>
         </nav>
         <div className="footer-col">
           <p className="mono-label footer-head">CONTACT</p>
-          <a href="mailto:lab@nocta.bio">lab@nocta.bio</a>
+          <a href="mailto:lab@apexion.bio">lab@apexion.bio</a>
           <p className="footer-pay" aria-label="Accepted payments: Visa, Mastercard, American Express, wire transfer">
             {PAYMENTS.map((p) => (
               <span className="pay-chip mono-label" key={p}>
@@ -51,7 +51,7 @@ export default function Footer() {
           Sales restricted to purchasers 21+ acting on behalf of a laboratory or research
           institution. Handle all compounds with appropriate laboratory controls.
         </p>
-        <p className="mono-label footer-copy">© 2026 NOCTA BIOWORKS LLC · ALL RIGHTS RESERVED</p>
+        <p className="mono-label footer-copy">© 2026 APEXION INSTRUMENTS LLC · ALL RIGHTS RESERVED</p>
       </div>
     </footer>
   )

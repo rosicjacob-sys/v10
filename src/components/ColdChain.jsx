@@ -20,7 +20,7 @@ export default function ColdChain() {
     return tl
   })
   return (
-    <section className="cold" ref={scope}>
+    <section id="cold" className="apex-section cold" ref={scope}>
       <div className="container cold-inner">
         <svg
           className="cold-seal"

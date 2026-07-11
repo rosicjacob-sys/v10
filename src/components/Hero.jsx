@@ -12,11 +12,11 @@ export default function Hero() {
   // scroll speed (capped), snaps back with the smoothed velocity.
   useEffect(() => {
     if (reducedMotion() || coarsePointer()) return
-    let w = 124
+    let w = 112
     const tick = () => {
       const el = titleRef.current && titleRef.current.querySelector('h1')
       if (!el) return
-      const target = Math.min(124 + Math.abs(scrollState.velocity) * 3.2, 134)
+      const target = Math.min(112 + Math.abs(scrollState.velocity) * 3.0, 125)
       w += (target - w) * 0.12
       el.style.fontVariationSettings = `'wdth' ${w.toFixed(2)}`
     }
@@ -40,16 +40,17 @@ export default function Hero() {
       <div className="container hero-grid">
         <div className="hero-copy">
           <p className="eyebrow" data-reveal>
-            RESEARCH PEPTIDES — READ AS LIGHT
+            DETECTED · CHARACTERIZED · ARCHIVED
           </p>
           <div ref={titleRef}>
             <SplitHeading as="h1" className="hero-title">
-              The compound, read as <em>light</em>.
+              Every peak, resolved to <em>baseline</em>.
             </SplitHeading>
           </div>
           <p className="hero-sub" data-reveal>
-            Research peptides, sequenced in the dark. Each lot is lyophilized, argon-sealed, and
-            cold-shipped — with a public certificate of analysis keyed to the batch on the cap.
+            Research-grade reference compounds, characterized by HPLC and mass — and shown to you as
+            the instrument sees them: a signal resolving out of detector noise. For laboratory
+            research use only.
           </p>
           <div className="hero-ctas" data-reveal>
             <Magnetic>
@@ -74,8 +75,8 @@ export default function Hero() {
             </Magnetic>
           </div>
           <ul className="trust-row mono-label" data-reveal>
-            <li>≥98% PURITY</li>
-            <li>COA PER LOT</li>
+            <li>≥99% BY HPLC</li>
+            <li>MASS-CONFIRMED</li>
             <li>RESEARCH USE ONLY</li>
           </ul>
         </div>

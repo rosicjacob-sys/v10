@@ -4,17 +4,17 @@ import { scrollToEl } from '../lib/scroll'
 
 const LINKS = [
   { label: 'Catalog', target: '#catalog' },
-  { label: 'Process', target: '#process' },
-  { label: 'Verification', target: '#verify' },
+  { label: 'Compounds', target: '#ghk' },
+  { label: 'Verify', target: '#verify' },
   { label: 'FAQ', target: '#faq' },
 ]
 
+// APEXION mark — a resolved chromatogram peak on a baseline.
 export function VialGlyph({ className = '' }) {
   return (
-    <svg className={className} viewBox="0 0 32 32" width="22" height="22" aria-hidden="true">
-      <rect x="4" y="6" width="24" height="4" rx="1.5" fill="#14171A" />
-      <rect x="4" y="14" width="24" height="4" rx="1.5" fill="var(--accent, #1F6FEB)" />
-      <rect x="4" y="22" width="24" height="4" rx="1.5" fill="#8D97A3" />
+    <svg className={className} viewBox="0 0 32 32" width="22" height="22" fill="none" aria-hidden="true">
+      <path d="M3 24h6l3.5-16 3.5 16 4-9 2.5 9H29" stroke="var(--accent, #2E9BE6)" strokeWidth="2.1" strokeLinejoin="round" strokeLinecap="round" />
+      <line x1="3" y1="27.5" x2="29" y2="27.5" stroke="#3a4a5c" strokeWidth="1.4" strokeLinecap="round" />
     </svg>
   )
 }
@@ -65,9 +65,9 @@ export default function Nav() {
   return (
     <header className={`nav ${glassy ? 'nav-glass' : ''} ${hidden ? 'nav-hidden' : ''}`}>
       <div className="nav-inner">
-        <a className="nav-logo" href="#hero" aria-label="NOCTA — home" onClick={(e) => go(e, '#hero')}>
+        <a className="nav-logo" href="#hero" aria-label="APEXION — home" onClick={(e) => go(e, '#hero')}>
           <VialGlyph />
-          <span className="nav-wordmark">NOCTA<span className="nav-word2">read as light</span></span>
+          <span className="nav-wordmark">APEXION<span className="nav-word2">read the peak</span></span>
         </a>
         <nav className="nav-links" aria-label="Primary">
           {LINKS.map((l) => (

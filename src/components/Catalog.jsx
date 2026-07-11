@@ -3,7 +3,7 @@ import gsap from 'gsap'
 import { useReveal } from '../lib/reveal'
 import { useCart } from '../lib/cart'
 import { PEPTIDES, CATALOG_EXTRA } from '../lib/data'
-import { setVialColor } from '../three/vialStore'
+import { setVialColor } from '../three/apexStore'
 import { reducedMotion } from '../lib/env'
 import SplitHeading from './SplitHeading'
 import Counter from './Counter'
@@ -54,9 +54,9 @@ export default function Catalog() {
   return (
     <section id="catalog" className="catalog" ref={scope}>
       <div className="container">
-        <p className="eyebrow">THE CATALOG — SELECT TO PREVIEW THE POWDER</p>
+        <p className="eyebrow">THE CATALOG — SELECT TO READ THE SIGNAL</p>
         <SplitHeading as="h2" className="section-title">
-          Many peptides. <em>One</em> standard.
+          Many compounds. <em>One</em> readout.
         </SplitHeading>
 
         <div

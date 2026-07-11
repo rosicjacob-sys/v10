@@ -1,8 +1,8 @@
 import { Component, useEffect, useRef, useState } from 'react'
 import { Canvas } from '@react-three/fiber'
-import AtelierScene from './AtelierScene'
-import { useVialChoreography } from './choreography'
-import { vialStore } from './vialStore'
+import ApexScene from './ApexScene'
+import { useApexChoreography } from './choreography'
+import { apexStore } from './apexStore'
 import { FORCE_QA, FORCE_REDUCED_MOTION, MOBILE_MQ, useMediaQuery, webglSupported } from '../lib/env'
 
 if (FORCE_QA) window.__QA__ = true
@@ -11,49 +11,45 @@ class GLErrorBoundary extends Component {
   constructor(props) { super(props); this.state = { failed: false } }
   static getDerivedStateFromError() { return { failed: true } }
   componentDidCatch(err) {
-    console.warn('[nocta] WebGL scene failed — static fallback shown.', err)
+    console.warn('[apex] WebGL scene failed — static readout fallback shown.', err)
     if (this.props.onFail) this.props.onFail()
   }
   render() { return this.state.failed ? null : this.props.children }
 }
 
-/** Never-blank fallback: a static vertical SVG double helix with a CSS
- * wavefront sheen, in the live accent. Rendered under the canvas at all times. */
-function FallbackHelix({ show }) {
-  const ref = useRef(null)
-  useEffect(() => {
-    const el = ref.current
-    if (!el) return
-    const onScroll = () => {
-      const f = Math.max(0, 1 - window.scrollY / (window.innerHeight * 0.8))
-      el.style.opacity = String(0.35 + f * 0.65)
-    }
-    onScroll()
-    window.addEventListener('scroll', onScroll, { passive: true })
-    return () => window.removeEventListener('scroll', onScroll)
-  }, [])
-  const rows = Array.from({ length: 16 }, (_, i) => 8 + i * 11)
-  const xa = (y) => 40 + Math.sin(y / 22) * 26
-  const xb = (y) => 40 - Math.sin(y / 22) * 26
+/** Never-blank fallback: a static instrument readout — tick-grid baseline with
+ *  one resolved peak, in the live accent. Rendered under the canvas at all times
+ *  so the very first frame is the dark faceplate, never a white flash. */
+function FallbackReadout({ show }) {
+  const rows = Array.from({ length: 9 }, (_, i) => 12 + i * 20)
+  const cols = Array.from({ length: 13 }, (_, i) => 10 + i * 15)
+  // a chromatogram polyline: flat baseline + one tall gaussian + two minor
+  const pts = []
+  for (let x = 0; x <= 200; x += 2) {
+    const g = 66 * Math.exp(-Math.pow((x - 118) / 11, 2))
+    const m1 = 16 * Math.exp(-Math.pow((x - 58) / 8, 2))
+    const m2 = 11 * Math.exp(-Math.pow((x - 165) / 9, 2))
+    pts.push(`${x},${172 - (g + m1 + m2)}`)
+  }
   return (
-    <div ref={ref} className="vial-fallback" aria-hidden="true">
-      <div className={`vf-inner ${show ? '' : 'vf-hidden'}`}>
-        <svg className="vf-helix" viewBox="0 0 80 190" fill="none" preserveAspectRatio="xMidYMid slice">
-          {rows.map((y) => (
-            <g key={y}>
-              <line x1={xa(y)} y1={y} x2={xb(y)} y2={y} stroke="var(--accent)" strokeWidth="1.6" strokeLinecap="round" opacity="0.5" />
-              <circle cx={xa(y)} cy={y} r="2.4" fill="var(--accent)" />
-              <circle cx={xb(y)} cy={y} r="2.4" fill="var(--accent)" />
-            </g>
-          ))}
+    <div className="apex-fallback" aria-hidden="true">
+      <div className={`af-inner ${show ? '' : 'af-hidden'}`}>
+        <svg className="af-svg" viewBox="0 0 200 184" preserveAspectRatio="xMidYMid meet">
+          <g stroke="var(--line)" strokeWidth="0.4">
+            {rows.map((y) => <line key={`r${y}`} x1="6" y1={y} x2="194" y2={y} />)}
+            {cols.map((x) => <line key={`c${x}`} x1={x} y1="12" x2={x} y2="172" />)}
+          </g>
+          <line x1="6" y1="172" x2="194" y2="172" stroke="var(--ink-soft)" strokeWidth="0.7" />
+          <polyline points={pts.join(' ')} fill="none" stroke="var(--accent)" strokeWidth="1.4" strokeLinejoin="round" />
+          <circle cx="118" cy="106" r="2.4" fill="var(--accent)" />
         </svg>
-        <div className="vf-sheen" />
+        <div className="af-sheen" />
       </div>
     </div>
   )
 }
 
-export default function AtelierStage() {
+export default function ApexStage() {
   const [glOk] = useState(() => webglSupported())
   const [failed, setFailed] = useState(false)
   const [ready, setReady] = useState(false)
@@ -62,7 +58,7 @@ export default function AtelierStage() {
   const reduced = useMediaQuery('(prefers-reduced-motion: reduce)', FORCE_REDUCED_MOTION)
   const mobile = useMediaQuery(MOBILE_MQ)
 
-  useVialChoreography()
+  useApexChoreography()
 
   useEffect(() => {
     const el = stageRef.current
@@ -77,10 +73,9 @@ export default function AtelierStage() {
     return () => { ro.disconnect(); clearInterval(timer) }
   }, [])
 
-  // R3F initializes only after react-use-measure reports a non-zero size,
-  // which it does on window 'resize'. In a backgrounded tab the ResizeObserver
-  // is frozen, so nudge it with a few wall-clock resize dispatches — harmless
-  // in a live tab (already sized), essential for hidden-tab QA + edge cases.
+  // R3F initializes only after react-use-measure reports a non-zero size, which
+  // it does on a window 'resize'. In a backgrounded tab the ResizeObserver is
+  // frozen — nudge it with a few wall-clock resize dispatches (also fixes QA).
   useEffect(() => {
     if (!sized) return
     const t = [80, 300, 900].map((ms) =>
@@ -92,25 +87,26 @@ export default function AtelierStage() {
   const showGL = glOk && !failed
   return (
     <>
-      <FallbackHelix show={!showGL || !ready} />
+      <FallbackReadout show={!showGL || !ready} />
       <div ref={stageRef} className="vial-stage" aria-hidden="true">
         {showGL && sized && (
           <GLErrorBoundary onFail={() => setFailed(true)}>
             <Canvas
               dpr={mobile ? [1, 1.5] : [1, 2]}
               frameloop={reduced ? 'demand' : 'always'}
-              camera={{ fov: 42, position: [0.3, 11, 8.2], near: 0.1, far: 80 }}
+              camera={{ fov: 40, position: [0, 0, 15], near: 0.1, far: 120 }}
               gl={{ alpha: true, antialias: true, powerPreference: 'high-performance' }}
               onCreated={(state) => {
                 state.gl.domElement.addEventListener('webglcontextlost', (e) => { e.preventDefault(); setFailed(true) })
-                window.__nocta = {
-                  set: (vals) => Object.assign(vialStore, vals),
+                window.__apex = {
+                  set: (vals) => Object.assign(apexStore, vals),
                   advance: () => state.advance(performance.now() / 1000),
+                  store: apexStore,
                 }
                 requestAnimationFrame(() => requestAnimationFrame(() => setReady(true)))
               }}
             >
-              <AtelierScene reduced={reduced} mobile={mobile} />
+              <ApexScene reduced={reduced} mobile={mobile} />
             </Canvas>
           </GLErrorBoundary>
         )}
