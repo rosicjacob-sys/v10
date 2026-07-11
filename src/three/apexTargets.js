@@ -92,7 +92,7 @@ export function bakeTargets(sim) {
 
     // 1 — WORDMARK: sample APEXION text plane, tiny z thickness
     {
-      const p = wordPts[(Math.random() * wordPts.length) | 0]
+      const p = wordPts[(rnd() * wordPts.length) | 0]
       arrays[1][o] = p[0] + rn() * 0.03
       arrays[1][o + 1] = p[1] + rn() * 0.03
       arrays[1][o + 2] = rn() * 0.15
@@ -137,12 +137,12 @@ export function bakeTargets(sim) {
     // 5 — RING: compact aromatic ring cluster (fat torus)
     {
       const a = rnd() * Math.PI * 2
-      const R = 3.0
-      const r = 0.55 + rnd() * 0.8
+      const R = 3.1
+      const r = 0.34 + rnd() * 0.28
       const b = rnd() * Math.PI * 2
       arrays[5][o] = (R + r * Math.cos(b)) * Math.cos(a)
-      arrays[5][o + 1] = (R + r * Math.cos(b)) * Math.sin(a) * 0.85
-      arrays[5][o + 2] = r * Math.sin(b)
+      arrays[5][o + 1] = (R + r * Math.cos(b)) * Math.sin(a)
+      arrays[5][o + 2] = r * Math.sin(b) * 1.4
     }
 
     // 6 — CHAIN: long folded peptide backbone (parametric wander) + scatter
@@ -190,7 +190,7 @@ export function bakeTargets(sim) {
 
     // 10 — FORMULA: sample molecular-formula text
     {
-      const p = formulaPts[(Math.random() * formulaPts.length) | 0]
+      const p = formulaPts[(rnd() * formulaPts.length) | 0]
       arrays[10][o] = p[0] + rn() * 0.03
       arrays[10][o + 1] = p[1] + rn() * 0.03
       arrays[10][o + 2] = rn() * 0.12

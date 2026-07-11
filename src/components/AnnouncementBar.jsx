@@ -12,7 +12,7 @@ export default function AnnouncementBar() {
   return (
     <div className="announce" role="note" aria-label="HPLC-verified every batch. Public COA per lot. Cold-chain shipping. For research use only.">
       {reduced ? (
-        <p className="announce-static mono-label">HPLC-VERIFIED · PUBLIC COA PER LOT · FOR RESEARCH USE ONLY</p>
+        <p className="announce-static mono-label">EVERY PEAK, RESOLVED TO BASELINE · ONE READOUT PER LOT · FOR LABORATORY RESEARCH USE ONLY</p>
       ) : (
         <div className="announce-track mono-label" ref={track} aria-hidden="true">
           <span>{PROMISE.repeat(3)}</span>

@@ -53,16 +53,20 @@ export function useApexChoreography() {
 
     mm.add(MQ_DESKTOP, () => {
       gsap.set(apexStore, {
-        progress: 0, intro: 0, seq: 0, resolve: 0.25, boilBase: 0.55,
+        progress: 0, intro: 0, seq: 0, resolve: 0.25, boilBase: 0.5,
         scan: -999, lens: 0, dim: 1, camZ: 15, camX: 0, camY: 0, camRoll: 0, fov: 40,
       })
       setVialColor(CYAN, CYAN, true)
       // boot resolve: static condenses into the wordmark, then one peak
-      gsap.to(apexStore, { intro: 1, seq: 2, resolve: 1, boilBase: 0.32, duration: 2.6, ease: 'power2.inOut', delay: 0.3 })
-      // whole-document spine (progress for anything that wants it)
+      const introTween = gsap.to(apexStore, { intro: 1, seq: 2, resolve: 1, boilBase: 0.09, duration: 2.6, ease: 'power2.inOut', delay: 0.3, overwrite: 'auto' })
+      // whole-document spine. The moment the user scrolls, hand `seq` entirely
+      // to the scrub — kill the intro so the two never fight over apexStore.seq.
       gsap.to(apexStore, {
         progress: 1, ease: 'none',
-        scrollTrigger: { trigger: 'main', start: 'top top', end: 'bottom bottom', scrub: 0.6, invalidateOnRefresh: true },
+        scrollTrigger: {
+          trigger: 'main', start: 'top top', end: 'bottom bottom', scrub: 0.6, invalidateOnRefresh: true,
+          onUpdate: (self) => { if (self.progress > 0.001 && introTween.isActive()) introTween.kill() },
+        },
       })
 
       // --- the tour (each waypoint = a distinct crystallized field state) ---
@@ -96,14 +100,17 @@ export function useApexChoreography() {
 
     mm.add(MQ_MOBILE, () => {
       gsap.set(apexStore, {
-        progress: 0, intro: 0, seq: 0, resolve: 0.3, boilBase: 0.5,
+        progress: 0, intro: 0, seq: 0, resolve: 0.3, boilBase: 0.45,
         scan: -999, lens: 0, dim: 0.7, camZ: 20, camX: 0, camY: 0, camRoll: 0, fov: 46,
       })
       setVialColor(CYAN, CYAN, true)
-      gsap.to(apexStore, { intro: 1, seq: 2, resolve: 1, boilBase: 0.3, duration: 2.4, ease: 'power2.inOut', delay: 0.3 })
+      const introTweenM = gsap.to(apexStore, { intro: 1, seq: 2, resolve: 1, boilBase: 0.09, duration: 2.4, ease: 'power2.inOut', delay: 0.3, overwrite: 'auto' })
       gsap.to(apexStore, {
         progress: 1, ease: 'none',
-        scrollTrigger: { trigger: 'main', start: 'top top', end: 'bottom bottom', scrub: 0.6, invalidateOnRefresh: true },
+        scrollTrigger: {
+          trigger: 'main', start: 'top top', end: 'bottom bottom', scrub: 0.6, invalidateOnRefresh: true,
+          onUpdate: (self) => { if (self.progress > 0.001 && introTweenM.isActive()) introTweenM.kill() },
+        },
       })
       wp('#thesis', { seq: 2, dim: 0.45, camZ: 19 })
       wp('#instrument', { seq: 2.3, dim: 0.55, camZ: 13 })

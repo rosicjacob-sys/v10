@@ -106,8 +106,8 @@ void main(){
   float d=dot(c,c);
   if(d>0.25) discard;
   float soft=1.0-smoothstep(0.0,0.25,d);
-  vec3 col=uColor*(0.35+vLife*0.95) + vec3(0.85,0.95,1.0)*vScan*0.9;
-  float alpha=soft*(0.09+vLife*0.5+vScan*0.45)*uDim*uOpacity;
+  vec3 col=uColor*(0.42+vLife*1.05) + vec3(0.85,0.95,1.0)*vScan*1.0;
+  float alpha=soft*(0.12+vLife*0.62+vScan*0.5)*uDim*uOpacity;
   gl_FragColor=vec4(col, 1.0)*alpha;   // additive
 }
 `
@@ -116,9 +116,23 @@ export default function ApexField({ mobile, reduced }) {
   const gl = useThree((s) => s.gl)
   const sim = mobile ? 192 : 384 // 36k / 147k points
   const pointsRef = useRef(null)
+  const dbgRef = useRef(0)
+  const prevBundle = useRef(null)
 
-  // bake target atlas + GPGPU renderer once
+  const disposeBundle = (b) => {
+    if (!b) return
+    b.geometry.dispose()
+    b.material.dispose()
+    b.atlas.forEach((t) => t.dispose())
+    if (b.gpu.dispose) b.gpu.dispose()
+  }
+
+  // bake target atlas + GPGPU renderer. Keyed on [gl, sim, mobile]: `mobile`
+  // (a live media query) can flip on a resize across the 800px breakpoint,
+  // which changes `sim` and rebuilds everything — so dispose the PREVIOUS
+  // bundle here, not only on unmount, or each flip leaks a full GPU resource set.
   const { gpu, posVar, velVar, atlas, count, geometry, material } = useMemo(() => {
+    disposeBundle(prevBundle.current)
     const { textures, count } = bakeTargets(sim)
     const gpu = new GPUComputationRenderer(sim, sim, gl)
     if (gl.capabilities.isWebGL2 === false) gpu.setDataType(THREE.HalfFloatType)
@@ -168,7 +182,7 @@ export default function ApexField({ mobile, reduced }) {
     const material = new THREE.ShaderMaterial({
       uniforms: {
         uPositions: { value: null },
-        uSize: { value: mobile ? 0.9 : 1.15 },
+        uSize: { value: mobile ? 1.1 : 1.45 },
         uScanY: { value: -999 },
         uColor: { value: new THREE.Color('#2E9BE6') },
         uDim: { value: 1 },
@@ -182,17 +196,14 @@ export default function ApexField({ mobile, reduced }) {
       blending: THREE.AdditiveBlending,
     })
 
-    return { gpu, posVar, velVar, atlas: textures, count, geometry, material }
+    const bundle = { gpu, posVar, velVar, atlas: textures, count, geometry, material }
+    prevBundle.current = bundle
+    return bundle
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [gl, sim, mobile])
 
   useEffect(() => {
-    return () => {
-      geometry.dispose()
-      material.dispose()
-      atlas.forEach((t) => t.dispose())
-      gpu.dispose && gpu.dispose()
-    }
+    return () => disposeBundle(prevBundle.current)
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
@@ -230,14 +241,30 @@ export default function ApexField({ mobile, reduced }) {
     pu.uDt.value = dt
 
     gpu.compute()
-    material.uniforms.uPositions.value = gpu.getCurrentRenderTarget(posVar).texture
+    const posRT = gpu.getCurrentRenderTarget(posVar)
+    material.uniforms.uPositions.value = posRT.texture
+
+    // one-shot debug: read back a few position texels so QA can confirm the sim
+    if (window.__QA_DBG__ && dbgRef.current < 1) {
+      dbgRef.current = 1
+      try {
+        const buf = new Float32Array(16)
+        gl.readRenderTargetPixels(posRT, sim >> 1, sim >> 1, 2, 2, buf)
+        window.__apexDbg = {
+          sample: Array.from(buf.slice(0, 8)),
+          hasTex: !!posRT.texture, count, sim,
+          matSize: material.uniforms.uSize.value,
+          color: material.uniforms.uColor.value.getHexString(),
+        }
+      } catch (e) { window.__apexDbg = { err: String(e) } }
+    }
 
     // signal color eases toward the selected compound
     if (!reduced) s.accent.lerp(s.target, 0.08)
     material.uniforms.uColor.value.copy(s.accent)
     material.uniforms.uScanY.value = s.scan
     material.uniforms.uDim.value = s.dim
-    material.uniforms.uOpacity.value = 1 - s.lens * 0.35 // fade a touch behind the lens
+    material.uniforms.uOpacity.value = 1 - s.lens * 0.1 // keep the peak bright to refract
   })
 
   return <points ref={pointsRef} geometry={geometry} material={material} frustumCulled={false} />

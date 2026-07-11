@@ -11,6 +11,7 @@ import { apexStore } from './apexStore'
 function RefractionLens({ reduced }) {
   const ref = useRef(null)
   const mat = useRef(null)
+  const rim = useRef(null)
   useFrame((state, delta) => {
     if (document.hidden && !window.__QA__) return
     const s = apexStore
@@ -20,37 +21,48 @@ function RefractionLens({ reduced }) {
     g.visible = show
     if (!show) return
     const k = s.lens
-    g.scale.setScalar(THREE.MathUtils.lerp(1.2, 2.8, k))
-    g.position.set(s.camX, s.camY * 0.4, 4.2)
-    if (!reduced) g.rotation.z = state.clock.elapsedTime * 0.06
+    const sc = THREE.MathUtils.lerp(0.8, 1.7, k)
+    g.scale.set(sc, sc, sc * 0.62) // flattened = convex lens, not a ball
+    g.position.set(s.camX + 0.3, s.camY * 0.4 + 0.5, 5.0)
+    if (!reduced) g.rotation.z = state.clock.elapsedTime * 0.05
     if (mat.current) {
       mat.current.attenuationColor = s.accent
       mat.current.color = s.accent
     }
+    if (rim.current) {
+      rim.current.material.color.copy(s.accent)
+      rim.current.material.opacity = 0.5 * k
+    }
   })
   return (
-    <mesh ref={ref} visible={false} scale={1.2}>
-      {/* a flattened icosphere reads as a convex lens/droplet */}
-      <sphereGeometry args={[1, 48, 48]} />
-      <MeshTransmissionMaterial
-        ref={mat}
-        transmission={1}
-        thickness={1.4}
-        roughness={0.06}
-        ior={1.47}
-        chromaticAberration={0.55}
-        anisotropy={0.3}
-        distortion={0.35}
-        distortionScale={0.4}
-        temporalDistortion={reduced ? 0 : 0.12}
-        samples={6}
-        resolution={512}
-        backside={false}
-        attenuationDistance={2.4}
-        attenuationColor="#2E9BE6"
-        color="#2E9BE6"
-      />
-    </mesh>
+    <group ref={ref} visible={false}>
+      <mesh>
+        <sphereGeometry args={[1, 56, 56]} />
+        <MeshTransmissionMaterial
+          ref={mat}
+          transmission={1}
+          thickness={0.7}
+          roughness={0.12}
+          ior={1.32}
+          chromaticAberration={0.85}
+          anisotropy={0.4}
+          distortion={0.25}
+          distortionScale={0.3}
+          temporalDistortion={reduced ? 0 : 0.1}
+          samples={6}
+          resolution={512}
+          backside={false}
+          attenuationDistance={6}
+          attenuationColor="#2E9BE6"
+          color="#dff0fb"
+        />
+      </mesh>
+      {/* additive spectral rim — always reads, even over dark space */}
+      <mesh ref={rim} scale={1.02}>
+        <torusGeometry args={[1.0, 0.045, 16, 96]} />
+        <meshBasicMaterial color="#2E9BE6" transparent opacity={0.5} blending={THREE.AdditiveBlending} depthWrite={false} depthTest={false} />
+      </mesh>
+    </group>
   )
 }
 
@@ -76,9 +88,10 @@ export default function ApexScene({ reduced, mobile }) {
     p.y += (p.ty - p.y) * 0.05
     const cam = state.camera
     cam.position.set(s.camX + p.x * 0.4, s.camY + p.y * 0.3, s.camZ)
-    cam.rotation.z = s.camRoll + p.x * 0.01
     look.set(s.camX + p.x * 0.2, s.camY * 0.4, 0)
-    cam.lookAt(look)
+    cam.lookAt(look) // rebuilds the quaternion, so roll must be applied AFTER
+    const roll = s.camRoll + p.x * 0.01
+    if (roll !== 0) cam.rotateZ(roll)
     if (cam.isPerspectiveCamera && Math.abs(cam.fov - s.fov) > 0.01) {
       cam.fov = s.fov
       cam.updateProjectionMatrix()

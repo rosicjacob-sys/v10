@@ -93,14 +93,21 @@ export default function ApexStage() {
           <GLErrorBoundary onFail={() => setFailed(true)}>
             <Canvas
               dpr={mobile ? [1, 1.5] : [1, 2]}
+              // 'always' when animating; 'demand' under reduced motion. (QA in a
+              // hidden tab drives frames via __apex.advance(); 'always' lets the
+              // render-time wall-clock delta step the sim — 'never' would leave
+              // the fallback up because the ready-flag rAF is frozen when hidden.)
               frameloop={reduced ? 'demand' : 'always'}
               camera={{ fov: 40, position: [0, 0, 15], near: 0.1, far: 120 }}
               gl={{ alpha: true, antialias: true, powerPreference: 'high-performance' }}
               onCreated={(state) => {
                 state.gl.domElement.addEventListener('webglcontextlost', (e) => { e.preventDefault(); setFailed(true) })
+                let qaClock = performance.now() / 1000
                 window.__apex = {
                   set: (vals) => Object.assign(apexStore, vals),
-                  advance: () => state.advance(performance.now() / 1000),
+                  // step the clock by a real dt so the GPGPU sim integrates in
+                  // hidden-tab QA (a tight loop of absolute timestamps is dt≈0).
+                  advance: (step = 0.016) => { qaClock += step; state.advance(qaClock) },
                   store: apexStore,
                 }
                 requestAnimationFrame(() => requestAnimationFrame(() => setReady(true)))
