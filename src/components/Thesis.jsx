@@ -1,5 +1,6 @@
 import gsap from 'gsap'
 import SplitHeading from './SplitHeading'
+import Scramble from './Scramble'
 import { useReveal } from '../lib/reveal'
 
 // Zone 2 — the thesis, set in kinetic display type over the resolved peak.
@@ -23,9 +24,9 @@ export default function Thesis() {
           rising cleanly out of the baseline, and the number under it is the number the detector
           returned.
         </p>
-        <p className="apex-note mono-label" data-reveal>
-          DETECTED · CHARACTERIZED · ARCHIVED — FOR LABORATORY RESEARCH USE ONLY
-        </p>
+        <Scramble as="p" className="apex-note mono-label" data-reveal
+          text="DETECTED · CHARACTERIZED · ARCHIVED — FOR LABORATORY RESEARCH USE ONLY" />
+
       </div>
     </section>
   )

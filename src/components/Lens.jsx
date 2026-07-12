@@ -2,9 +2,9 @@ import gsap from 'gsap'
 import SplitHeading from './SplitHeading'
 import { useReveal } from '../lib/reveal'
 
-// Zone 4 — the refraction lens set-piece (the screenshot moment). The WebGL
-// lens rises over the crystallized peak (choreography sets apexStore.lens 0→1),
-// so the copy sits to one side and names what you're seeing.
+// Zone 4 — the resolved-peak moment. The field crystallizes into its cleanest,
+// brightest chromatogram peak here (choreography holds seq at the PEAK slot,
+// dim 1); the copy names what the resolved signal means.
 export default function Lens() {
   const scope = useReveal((el) =>
     gsap.from(el.querySelectorAll('[data-reveal]'), {
@@ -16,18 +16,17 @@ export default function Lens() {
     <section id="lens" className="apex-section lens" ref={scope}>
       <div className="container lens-grid">
         <div className="apex-cabin lens-copy">
-          <p className="eyebrow" data-reveal>READ THROUGH THE MATERIAL</p>
+          <p className="eyebrow" data-reveal>RESOLVED TO BASELINE</p>
           <SplitHeading as="h2" className="section-title" types="lines">
-            The peak, read through the <em>compound</em>.
+            One lot. One <em>peak</em>. One number.
           </SplitHeading>
           <p className="apex-lead" data-reveal>
-            You are not looking at the compound. You are looking <em>through</em> it — the resolved
-            signal seen through a lens of its own light, its edge splitting into a thin spectral
-            fringe. Each reference standard bends the light a little differently. That is its
-            fingerprint.
+            When the field goes still, this is what’s left: a single measured signal rising cleanly
+            out of the noise, resolved all the way to baseline. No description, no promise — the
+            peak the detector actually returned. Every reference standard has exactly one.
           </p>
           <p className="apex-note mono-label" data-reveal>
-            ITALICS: TRANSMISSION · IOR 1.47 · DISPERSION KEYED TO SCROLL VELOCITY
+            PEAK AREA ≥ 99% · BASELINE-RESOLVED · ONE READOUT PER LOT
           </p>
         </div>
       </div>

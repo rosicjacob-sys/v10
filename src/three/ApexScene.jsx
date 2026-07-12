@@ -1,70 +1,16 @@
 import { useEffect, useMemo, useRef } from 'react'
 import * as THREE from 'three'
 import { useFrame, useThree } from '@react-three/fiber'
-import { MeshTransmissionMaterial } from '@react-three/drei'
 import ApexField from './ApexField'
 import { apexStore } from './apexStore'
 
-// The refraction lens — a convex disc of the compound's own light that the
-// crystallized peak is read THROUGH. Only mounts on desktop; frozen (not
-// animated) under reduced motion. Absorption is tinted to the live accent.
-function RefractionLens({ reduced }) {
-  const ref = useRef(null)
-  const mat = useRef(null)
-  const rim = useRef(null)
-  useFrame((state, delta) => {
-    if (document.hidden && !window.__QA__) return
-    const s = apexStore
-    const g = ref.current
-    if (!g) return
-    const show = s.lens > 0.01
-    g.visible = show
-    if (!show) return
-    const k = s.lens
-    const sc = THREE.MathUtils.lerp(0.8, 1.7, k)
-    g.scale.set(sc, sc, sc * 0.62) // flattened = convex lens, not a ball
-    g.position.set(s.camX + 0.3, s.camY * 0.4 + 0.5, 5.0)
-    if (!reduced) g.rotation.z = state.clock.elapsedTime * 0.05
-    if (mat.current) {
-      mat.current.attenuationColor = s.accent
-      mat.current.color = s.accent
-    }
-    if (rim.current) {
-      rim.current.material.color.copy(s.accent)
-      rim.current.material.opacity = 0.5 * k
-    }
-  })
-  return (
-    <group ref={ref} visible={false}>
-      <mesh>
-        <sphereGeometry args={[1, 56, 56]} />
-        <MeshTransmissionMaterial
-          ref={mat}
-          transmission={1}
-          thickness={0.7}
-          roughness={0.12}
-          ior={1.32}
-          chromaticAberration={0.85}
-          anisotropy={0.4}
-          distortion={0.25}
-          distortionScale={0.3}
-          temporalDistortion={reduced ? 0 : 0.1}
-          samples={6}
-          resolution={512}
-          backside={false}
-          attenuationDistance={6}
-          attenuationColor="#2E9BE6"
-          color="#dff0fb"
-        />
-      </mesh>
-      {/* additive spectral rim — always reads, even over dark space */}
-      <mesh ref={rim} scale={1.02}>
-        <torusGeometry args={[1.0, 0.045, 16, 96]} />
-        <meshBasicMaterial color="#2E9BE6" transparent opacity={0.5} blending={THREE.AdditiveBlending} depthWrite={false} depthTest={false} />
-      </mesh>
-    </group>
-  )
-}
+// NOTE: an earlier build put a drei <MeshTransmissionMaterial> "refraction lens"
+// here. On a transparent, additive canvas its transmission sampler reads BLACK,
+// so it rendered as a giant opaque black orb that filled the screen at the #lens
+// section — the "grey/dark page". Same trap as bloom-on-transparent. Removed:
+// the point-field is the hero, and #lens just crystallizes the peak brightly.
+// Do NOT reintroduce MeshTransmissionMaterial or postprocessing bloom over this
+// transparent canvas.
 
 export default function ApexScene({ reduced, mobile }) {
   const three = useThree()
@@ -113,10 +59,5 @@ export default function ApexScene({ reduced, mobile }) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [reduced])
 
-  return (
-    <>
-      <ApexField mobile={mobile} reduced={reduced} />
-      {!mobile && <RefractionLens reduced={reduced} />}
-    </>
-  )
+  return <ApexField mobile={mobile} reduced={reduced} />
 }

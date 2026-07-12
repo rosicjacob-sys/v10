@@ -1,9 +1,11 @@
 import gsap from 'gsap'
 import SplitHeading from './SplitHeading'
+import Scramble from './Scramble'
 import { useReveal } from '../lib/reveal'
 
-// Zone 3 — "The Instrument": the camera dollies INTO the field (choreography),
-// so this zone stays sparse and lets the point-tunnel be the moment.
+// Zone 3 — "The Instrument". The camera dollies INTO the field here (driven by
+// the #instrument waypoint in choreography.js via the global scrub — no pin,
+// so no layout thrash). Copy holds one side while the field drives through.
 const SPECS = [
   ['DETECTOR', 'RP-HPLC · UV 220 NM'],
   ['IDENTITY', 'ESI-MS · POSITIVE MODE'],
@@ -20,19 +22,24 @@ export default function Instrument() {
   )
   return (
     <section id="instrument" className="apex-section instrument" ref={scope}>
-      <div className="container apex-cabin instrument-inner">
-        <p className="eyebrow" data-reveal>INSIDE THE DETECTOR</p>
-        <SplitHeading as="h2" className="section-title" types="lines">
-          Look <em>through</em> the instrument.
-        </SplitHeading>
-        <ul className="spec-grid" data-reveal>
-          {SPECS.map(([k, v]) => (
-            <li className="spec-row" key={k}>
-              <span className="mono-label spec-k">{k}</span>
-              <span className="mono-label spec-v">{v}</span>
-            </li>
-          ))}
-        </ul>
+      <div className="container">
+        <div className="apex-cabin instrument-cabin cabin-left">
+          <p className="eyebrow" data-reveal>INSIDE THE DETECTOR</p>
+          <SplitHeading as="h2" className="section-title" types="lines">
+            Look <em>through</em> the instrument.
+          </SplitHeading>
+          <p className="apex-lead" data-reveal>
+            Keep scrolling — the camera drives straight through the resolved signal.
+          </p>
+          <ul className="spec-grid" data-reveal>
+            {SPECS.map(([k, v]) => (
+              <li className="spec-row" key={k}>
+                <span className="mono-label spec-k">{k}</span>
+                <Scramble as="span" className="mono-label spec-v" text={v} />
+              </li>
+            ))}
+          </ul>
+        </div>
       </div>
     </section>
   )

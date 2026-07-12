@@ -1,5 +1,6 @@
 import gsap from 'gsap'
 import SplitHeading from './SplitHeading'
+import Scramble from './Scramble'
 import { useReveal } from '../lib/reveal'
 import { PEPTIDES } from '../lib/data'
 
@@ -23,7 +24,7 @@ export default function Formula() {
           {PEPTIDES.map((p) => (
             <li className="formula-row" key={p.id} style={{ '--pep': p.ui }}>
               <span className="mono-label formula-name">{p.name}</span>
-              <span className="mono formula-value">{p.formula}</span>
+              <Scramble as="span" className="mono formula-value" text={p.formula} speed={34} />
             </li>
           ))}
         </ul>

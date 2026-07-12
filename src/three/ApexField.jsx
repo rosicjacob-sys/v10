@@ -106,8 +106,10 @@ void main(){
   float d=dot(c,c);
   if(d>0.25) discard;
   float soft=1.0-smoothstep(0.0,0.25,d);
-  vec3 col=uColor*(0.42+vLife*1.05) + vec3(0.85,0.95,1.0)*vScan*1.0;
-  float alpha=soft*(0.12+vLife*0.62+vScan*0.5)*uDim*uOpacity;
+  vec3 col=uColor*(0.5+vLife*0.62) + vec3(0.78,0.9,1.0)*vScan*0.8;
+  // lower per-point alpha so DENSE shapes (lattice/grid/wordmark) accumulate to
+  // a saturated colored glow instead of clipping to pure white.
+  float alpha=soft*(0.06+vLife*0.32+vScan*0.4)*uDim*uOpacity;
   gl_FragColor=vec4(col, 1.0)*alpha;   // additive
 }
 `

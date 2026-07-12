@@ -69,25 +69,28 @@ export function useApexChoreography() {
         },
       })
 
-      // --- the tour (each waypoint = a distinct crystallized field state) ---
-      wp('#thesis', { seq: 2, resolve: 1, dim: 0.55, camZ: 14, camY: 0 })
-      wp('#instrument', { seq: 2.35, resolve: 1, dim: 0.8, camZ: 8.4, camY: 0.4 }) // dolly INTO the peak
-      wp('#lens', { seq: 2, lens: 1, resolve: 1, dim: 0.7, camZ: 11, camY: 0 })
-      wp('#verify', { seq: 2, lens: 0, resolve: 1, dim: 0.55, camZ: 13 })
+      // --- the tour: the field is the TRAVELING HERO. It re-sorts into a new
+      // shape AND swings side-to-side (camX zig-zags) as the tracked signal
+      // moves down the page — bright (frosted cabins protect legibility).
+      // #instrument is a pinned dolly set-piece and writes the camera itself.
+      wp('#thesis', { seq: 2, resolve: 1, dim: 0.92, camZ: 13, camX: -2.6, camY: 0.3 })
+      wp('#instrument', { seq: 2.3, resolve: 1, dim: 1, camZ: 7.6, camX: 1.6, camY: 0.3 }) // dolly INTO the field
+      wp('#lens', { seq: 2, lens: 0, resolve: 1, dim: 1, camZ: 10.5, camX: 0.2, camY: 0 })
+      wp('#verify', { seq: 2, lens: 0, resolve: 1, dim: 0.78, camZ: 12.5, camX: 2.6, camY: -0.2 })
       scanSweep('#verify')
-      wp('#catalog', { seq: 3, resolve: 1, dim: 0.4, camZ: 15 })
-      wp('#ghk', { seq: 4, resolve: 1, dim: 0.66, camZ: 13 })
-      wp('#amino', { seq: 5, resolve: 1, dim: 0.66, camZ: 12.5 })
-      wp('#reta', { seq: 6, resolve: 1, dim: 0.66, camZ: 12.5 })
-      wp('#massspec', { seq: 7, resolve: 1, dim: 0.55, camZ: 14 })
-      wp('#scan', { seq: 8, resolve: 1, dim: 0.6, camZ: 13 })
+      wp('#catalog', { seq: 3, resolve: 1, dim: 0.62, camZ: 15, camX: -2.8, camY: 0 })
+      wp('#ghk', { seq: 4, resolve: 1, dim: 0.95, camZ: 11.5, camX: -2.8, camY: 0.25 })   // cabin left → field RIGHT
+      wp('#amino', { seq: 5, resolve: 1, dim: 0.95, camZ: 11, camX: 2.8, camY: -0.25 })   // cabin right → field LEFT
+      wp('#reta', { seq: 6, resolve: 1, dim: 0.95, camZ: 11.5, camX: -2.8, camY: 0.25 })  // cabin left → field RIGHT
+      wp('#massspec', { seq: 7, resolve: 1, dim: 0.9, camZ: 13, camX: 2.6, camY: -0.3 })
+      wp('#scan', { seq: 8, resolve: 1, dim: 0.95, camZ: 11.5, camX: -2.4, camY: 0.1 })
       scanSweep('#scan')
-      wp('#reviews', { seq: 9, resolve: 1, dim: 0.4, camZ: 15 })
-      wp('#cold', { seq: 9, resolve: 1, dim: 0.5, camZ: 14 })
-      wp('#formula', { seq: 10, resolve: 1, dim: 0.62, camZ: 13 })
-      wp('#order', { seq: 9, resolve: 1, dim: 0.4, camZ: 15 })
-      wp('#faq', { seq: 9, resolve: 1, dim: 0.42, camZ: 15 })
-      wp('#final-cta', { seq: 11, resolve: 1, dim: 0.85, camZ: 14 }, 'top bottom', 'top 45%')
+      wp('#reviews', { seq: 9, resolve: 1, dim: 0.6, camZ: 15, camX: 2.8, camY: 0 })
+      wp('#cold', { seq: 9, resolve: 1, dim: 0.8, camZ: 13, camX: -2.6, camY: 0.2 })
+      wp('#formula', { seq: 10, resolve: 1, dim: 0.95, camZ: 12, camX: 2.4, camY: 0.2 })
+      wp('#order', { seq: 9, resolve: 1, dim: 0.55, camZ: 15, camX: -2.8, camY: 0 })
+      wp('#faq', { seq: 9, resolve: 1, dim: 0.6, camZ: 15, camX: 2.8, camY: 0 })
+      wp('#final-cta', { seq: 11, resolve: 1, dim: 1, camZ: 12.5, camX: 0, camY: 0 }, 'top bottom', 'top 45%')
 
       // accents: neutral cyan everywhere except the three compound focus zones
       accentAt('#ghk', CYAN)
@@ -112,24 +115,25 @@ export function useApexChoreography() {
           onUpdate: (self) => { if (self.progress > 0.001 && introTweenM.isActive()) introTweenM.kill() },
         },
       })
-      wp('#thesis', { seq: 2, dim: 0.45, camZ: 19 })
-      wp('#instrument', { seq: 2.3, dim: 0.55, camZ: 13 })
-      wp('#lens', { seq: 2, dim: 0.5, camZ: 17 })
-      wp('#verify', { seq: 2, dim: 0.4, camZ: 18 })
+      // field travels top→bottom on mobile too (smaller camX amplitude), brighter
+      wp('#thesis', { seq: 2, dim: 0.7, camZ: 18, camY: 2.6, camX: 0 })
+      wp('#instrument', { seq: 2.4, dim: 0.85, camZ: 12.5, camY: 0, camX: 0 })
+      wp('#lens', { seq: 2, dim: 0.8, camZ: 16, camY: 0, camX: 0 })
+      wp('#verify', { seq: 2, dim: 0.6, camZ: 17, camY: -2.4, camX: 0 })
       scanSweep('#verify')
-      wp('#catalog', { seq: 3, dim: 0.35, camZ: 20 })
-      wp('#ghk', { seq: 4, dim: 0.5, camZ: 18 })
-      wp('#amino', { seq: 5, dim: 0.5, camZ: 18 })
-      wp('#reta', { seq: 6, dim: 0.5, camZ: 18 })
-      wp('#massspec', { seq: 7, dim: 0.42, camZ: 19 })
-      wp('#scan', { seq: 8, dim: 0.45, camZ: 18 })
+      wp('#catalog', { seq: 3, dim: 0.5, camZ: 19, camY: 2.4, camX: 0 })
+      wp('#ghk', { seq: 4, dim: 0.8, camZ: 16, camY: -2.2, camX: 1.4 })
+      wp('#amino', { seq: 5, dim: 0.8, camZ: 15.5, camY: -2.2, camX: -1.4 })
+      wp('#reta', { seq: 6, dim: 0.8, camZ: 16, camY: -2.2, camX: 1.4 })
+      wp('#massspec', { seq: 7, dim: 0.7, camZ: 17, camY: 2.4, camX: 0 })
+      wp('#scan', { seq: 8, dim: 0.8, camZ: 15.5, camY: 0, camX: 0 })
       scanSweep('#scan')
-      wp('#reviews', { seq: 9, dim: 0.32, camZ: 20 })
-      wp('#cold', { seq: 9, dim: 0.4, camZ: 19 })
-      wp('#formula', { seq: 10, dim: 0.48, camZ: 18 })
-      wp('#order', { seq: 9, dim: 0.32, camZ: 20 })
-      wp('#faq', { seq: 9, dim: 0.35, camZ: 20 })
-      wp('#final-cta', { seq: 11, dim: 0.7, camZ: 19 }, 'top bottom', 'top 45%')
+      wp('#reviews', { seq: 9, dim: 0.48, camZ: 19, camY: 2.4, camX: 0 })
+      wp('#cold', { seq: 9, dim: 0.65, camZ: 17, camY: -2.2, camX: 0 })
+      wp('#formula', { seq: 10, dim: 0.8, camZ: 15.5, camY: 2.2, camX: 0 })
+      wp('#order', { seq: 9, dim: 0.48, camZ: 19, camY: 2.4, camX: 0 })
+      wp('#faq', { seq: 9, dim: 0.5, camZ: 19, camY: 2.2, camX: 0 })
+      wp('#final-cta', { seq: 11, dim: 0.9, camZ: 16, camY: 0, camX: 0 }, 'top bottom', 'top 45%')
       accentAt('#ghk', CYAN)
       accentAt('#amino', AMBER)
       accentAt('#reta', WHITE)

@@ -1890,3 +1890,34 @@ main { position: relative; z-index: 2; }
   }
   .hero-copy { position: relative; z-index: 1; }
 }
+
+/* ============================================================
+   APEXION v10.1 — per-zone animation systems + traveling field
+   ============================================================ */
+
+/* Instrument: pinned dolly set-piece. Cabin holds one side; the field drives
+   through the middle (choreography writes the camera during the pin). */
+.instrument { min-height: 100vh; }
+.inst-pin { min-height: 100vh; display: flex; align-items: center; }
+.instrument-cabin.cabin-left { max-width: 46ch; margin-right: auto; }
+
+/* MassSpec — animated m/z stick spectrum */
+.mz-spectrum { margin: 1.8rem 0 0.4rem; }
+.mz-spectrum svg { width: 100%; height: clamp(120px, 20vh, 190px); display: block; }
+.mz-stick { filter: drop-shadow(0 0 4px color-mix(in srgb, var(--accent) 60%, transparent)); }
+.mz-axis { display: flex; justify-content: space-between; color: var(--ink-soft); font-size: 0.66rem; margin-top: 0.3rem; }
+
+/* ScanRecon — reconstruction panel beside the copy */
+.scan-inner { display: grid; grid-template-columns: 1.1fr 0.9fr; gap: clamp(1.5rem, 4vw, 3.5rem); align-items: center; }
+.scan-panel {
+  border: 1px solid var(--line); border-radius: 12px; padding: 1rem;
+  background: rgba(5, 8, 12, 0.5);
+}
+.scan-panel svg { width: 100%; height: auto; display: block; }
+.sr-line { filter: drop-shadow(0 0 5px var(--accent)); }
+.sr-dot { transition: none; }
+
+@media (max-width: 799.98px) {
+  .scan-inner { grid-template-columns: 1fr; }
+  .instrument-cabin.cabin-left { max-width: none; }
+}
