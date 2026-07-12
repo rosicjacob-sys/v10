@@ -40,7 +40,15 @@ export function webglSupported() {
   if (FORCE_NO_WEBGL) return false
   try {
     const canvas = document.createElement('canvas')
-    return !!(canvas.getContext('webgl2') || canvas.getContext('webgl'))
+    // The GPGPU field simulates in float render targets: context creation alone
+    // is NOT enough (a context without float-RT support boots, silently renders
+    // nothing, and the page looks dead). Require WebGL2 + EXT_color_buffer_float;
+    // anything less gets the SVG readout fallback instead of an empty canvas.
+    const gl = canvas.getContext('webgl2')
+    if (!gl) return false
+    if (!gl.getExtension('EXT_color_buffer_float')) return false
+    const maxTex = gl.getParameter(gl.MAX_TEXTURE_SIZE)
+    return maxTex >= 1024
   } catch {
     return false
   }

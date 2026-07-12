@@ -168,7 +168,13 @@ export default function ApexField({ mobile, reduced }) {
     })
 
     const err = gpu.init()
-    if (err) console.warn('[apex] GPGPU init:', err)
+    if (err) {
+      // Surface to the GLErrorBoundary -> static readout fallback. A silent
+      // warn here left a mounted-but-empty canvas: the page looked dead.
+      textures.forEach((t) => t.dispose())
+      if (gpu.dispose) gpu.dispose()
+      throw new Error('[apex] GPGPU init failed: ' + err)
+    }
 
     // render geometry: one vertex per sim texel, carrying its reference uv
     const geometry = new THREE.BufferGeometry()
