@@ -28,6 +28,9 @@ import Footer from './components/Footer'
 import StickyCart from './components/StickyCart'
 
 gsap.registerPlugin(ScrollTrigger)
+// iPhone Safari fires a resize on every URL-bar collapse mid-scroll; without
+// this, ~20 invalidateOnRefresh triggers full-refresh in the middle of a swipe.
+ScrollTrigger.config({ ignoreMobileResize: true })
 
 export default function App() {
   useLayoutEffect(() => {

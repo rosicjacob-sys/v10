@@ -46,7 +46,9 @@ export default function Boot() {
     const wall = setTimeout(finish, 1900)
     return () => {
       clearTimeout(wall)
-      tl.kill()
+      // revert (not kill): kill leaves the .from() inline styles behind, so a
+      // StrictMode remount would capture scaleX:0/autoAlpha:0 as the "end" state.
+      tl.revert()
     }
   }, [done])
 

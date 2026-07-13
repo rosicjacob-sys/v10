@@ -39,6 +39,7 @@ html,
 body {
   margin: 0;
   padding: 0;
+  overflow-x: hidden; /* old Safari: clip is invalid there and falls back to visible */
   overflow-x: clip;
 }
 
@@ -51,11 +52,19 @@ body {
   font-size: 17px;
   line-height: 1.62;
   color: var(--ink);
+  background: var(--canvas);
+}
+/* fixed atmosphere layer — NOT background-attachment: fixed, which iOS Safari
+   ignores (and every section is transparent, so this is the only backdrop). */
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
   background:
     radial-gradient(1500px 1000px at 62% 8%, #0d1620 0%, transparent 58%),
-    radial-gradient(1200px 1400px at 50% 122%, #04070b 0%, transparent 60%),
-    var(--canvas);
-  background-attachment: fixed;
+    radial-gradient(1200px 1400px at 50% 122%, #04070b 0%, transparent 60%);
 }
 
 img,
@@ -1920,4 +1929,31 @@ main { position: relative; z-index: 2; }
 @media (max-width: 799.98px) {
   .scan-inner { grid-template-columns: 1fr; }
   .instrument-cabin.cabin-left { max-width: none; }
+}
+
+/* ============================================================
+   Audit hardening (real-session fixes)
+   ============================================================ */
+
+/* footer + announce sit OUTSIDE <main>: without their own stacking context the
+   fixed field (z1) / fallback (z0) paint straight over their text */
+.footer, .announce { position: relative; z-index: 2; }
+
+/* batch chips are translated every frame by the marquee — per-chip backdrop
+   blur forces a compositor re-blur each frame. Solid glass instead. */
+.batch-chip {
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
+  background: rgba(9, 13, 20, 0.93);
+}
+
+/* mobile: backdrop-filter over an always-animating canvas is a GPU tax on
+   every cabin — swap blur for slightly more opaque glass */
+@media (max-width: 799.98px) {
+  .apex-cabin, .pep-list, .grid-cell, .verify-body, .verify-chroma,
+  .verify-stats, .order-cards, .order-side, .order-card, .faq-list, .cold-text {
+    backdrop-filter: none;
+    -webkit-backdrop-filter: none;
+    background: rgba(9, 13, 20, 0.92);
+  }
 }

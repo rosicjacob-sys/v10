@@ -63,17 +63,34 @@ function textPoints(text, worldW, worldH, weight = 800, wdth = 125) {
   return pts.length ? pts : [[0, 0]]
 }
 
+// Bakes are deterministic per sim size, so cache the Float32Arrays: crossing
+// the 800px breakpoint (iPad rotation) rebuilds the GPGPU bundle, and without
+// this the ~28MB of target math re-runs synchronously inside render. Textures
+// are rebuilt fresh each call (they get disposed with their bundle); the
+// arrays are safely shared.
+const bakeCache = new Map()
+
 export function bakeTargets(sim) {
   const count = sim * sim
+  if (bakeCache.has(sim)) {
+    const cached = bakeCache.get(sim)
+    const textures = cached.map((arr) => {
+      const t = new THREE.DataTexture(arr, sim, sim, THREE.RGBAFormat, THREE.FloatType)
+      t.needsUpdate = true
+      return t
+    })
+    return { textures, count, sim }
+  }
   const rnd = mulberry32(0x9e3779b9)
   const rn = () => rnd() * 2 - 1
 
   const arrays = []
   for (let s = 0; s < SLOT_COUNT; s++) arrays.push(new Float32Array(count * 4))
 
-  // pre-sample the two text targets
+  // pre-sample the two text targets. The formula is GHK-Cu's — it must match a
+  // formula the #formula section actually lists, or the readout contradicts it.
   const wordPts = textPoints('APEXION', 12.5, 3.0)
-  const formulaPts = textPoints('C₆₃H₉₈N₁₈O₁₃', 12.5, 2.4, 700)
+  const formulaPts = textPoints('C₁₄H₂₄N₆O₄·Cu', 12.5, 2.4, 700)
 
   for (let i = 0; i < count; i++) {
     const o = i * 4
@@ -207,6 +224,7 @@ export function bakeTargets(sim) {
     for (let s = 0; s < SLOT_COUNT; s++) arrays[s][o + 3] = 1
   }
 
+  bakeCache.set(sim, arrays)
   const textures = arrays.map((arr) => {
     const t = new THREE.DataTexture(arr, sim, sim, THREE.RGBAFormat, THREE.FloatType)
     t.needsUpdate = true

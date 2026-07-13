@@ -45,7 +45,10 @@ export function useMarquee(trackRef, { speed = 60, dir = -1, velocityBoost = fal
 
     const enter = () => (hovered = true)
     const leave = () => (hovered = false)
-    if (pauseOnHover) {
+    // hover-capable pointers only: on iOS a tap fires mouseenter but mouseleave
+    // may never come, freezing the marquee for the rest of the session.
+    const hoverOk = pauseOnHover && window.matchMedia('(hover: hover) and (pointer: fine)').matches
+    if (hoverOk) {
       track.addEventListener('mouseenter', enter)
       track.addEventListener('mouseleave', leave)
     }
@@ -53,7 +56,7 @@ export function useMarquee(trackRef, { speed = 60, dir = -1, velocityBoost = fal
       gsap.ticker.remove(tick)
       ro.disconnect()
       io.disconnect()
-      if (pauseOnHover) {
+      if (hoverOk) {
         track.removeEventListener('mouseenter', enter)
         track.removeEventListener('mouseleave', leave)
       }

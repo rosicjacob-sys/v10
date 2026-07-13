@@ -84,6 +84,25 @@ export default function ApexStage() {
     return () => t.forEach(clearTimeout)
   }, [sized])
 
+  // The never-blank fallback fades only on EVIDENCE: the field's first frame
+  // reads back its own sim texels and reports. NaN output -> stay on the SVG
+  // readout; ok -> reveal the live canvas. Wall-clock belt: if a live canvas
+  // exists but no verdict ever arrives (event raced the mount), reveal anyway.
+  useEffect(() => {
+    const ok = () => setReady(true)
+    const fail = () => setFailed(true)
+    window.addEventListener('apex-sim-ok', ok)
+    window.addEventListener('apex-sim-fail', fail)
+    const belt = setTimeout(() => {
+      if (stageRef.current && stageRef.current.querySelector('canvas')) setReady(true)
+    }, 5000)
+    return () => {
+      window.removeEventListener('apex-sim-ok', ok)
+      window.removeEventListener('apex-sim-fail', fail)
+      clearTimeout(belt)
+    }
+  }, [])
+
   const showGL = glOk && !failed
   return (
     <>
@@ -110,7 +129,6 @@ export default function ApexStage() {
                   advance: (step = 0.016) => { qaClock += step; state.advance(qaClock) },
                   store: apexStore,
                 }
-                requestAnimationFrame(() => requestAnimationFrame(() => setReady(true)))
               }}
             >
               <ApexScene reduced={reduced} mobile={mobile} />

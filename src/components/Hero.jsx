@@ -12,16 +12,30 @@ export default function Hero() {
   // scroll speed (capped), snaps back with the smoothed velocity.
   useEffect(() => {
     if (reducedMotion() || coarsePointer()) return
+    // visibility-gated: re-rasterizing a variable font every frame for the
+    // whole session (hero long off-screen) is wasted main-thread work.
+    let visible = true
+    let io = null
+    if ('IntersectionObserver' in window && titleRef.current) {
+      io = new IntersectionObserver((es) => { visible = es.some((e) => e.isIntersecting) })
+      io.observe(titleRef.current)
+    }
     let w = 112
     const tick = () => {
+      if (!visible) return
       const el = titleRef.current && titleRef.current.querySelector('h1')
       if (!el) return
       const target = Math.min(112 + Math.abs(scrollState.velocity) * 3.0, 125)
-      w += (target - w) * 0.12
+      const next = w + (target - w) * 0.12
+      if (Math.abs(next - w) < 0.02) return // converged — skip the style write
+      w = next
       el.style.fontVariationSettings = `'wdth' ${w.toFixed(2)}`
     }
     gsap.ticker.add(tick)
-    return () => gsap.ticker.remove(tick)
+    return () => {
+      gsap.ticker.remove(tick)
+      if (io) io.disconnect()
+    }
   }, [])
 
   const scope = useReveal((el) =>

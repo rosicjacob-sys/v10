@@ -83,7 +83,7 @@ void main(){
 
 const RENDER_VERT = /* glsl */ `
 uniform sampler2D uPositions;
-uniform float uSize,uScanY;
+uniform float uSize,uScanY,uDpr;
 attribute vec2 reference;
 varying float vLife; varying float vScan;
 void main(){
@@ -92,7 +92,11 @@ void main(){
   vLife=pl.w;
   vScan=1.0 - smoothstep(0.0,0.85, abs(pos.y - uScanY));
   vec4 mv=modelViewMatrix*vec4(pos,1.0);
-  gl_PointSize=uSize*(1.0/max(-mv.z,0.1))*300.0*(0.55+vLife*0.75+vScan*0.6);
+  // uSize is in CSS px (x uDpr -> device px, consistent across monitors).
+  // HARD CLAMP: unclamped near-camera sprites made the additive draw
+  // catastrophically fill-bound during the #instrument dolly (camZ 7.6).
+  float ps=uSize*uDpr*(1.0/max(-mv.z,0.5))*300.0*(0.55+vLife*0.75+vScan*0.6);
+  gl_PointSize=clamp(ps,1.0,24.0*max(uDpr,1.0));
   gl_Position=projectionMatrix*mv;
 }
 `
@@ -141,13 +145,16 @@ export default function ApexField({ mobile, reduced }) {
 
     const dtPos = gpu.createTexture()
     const dtVel = gpu.createTexture()
-    // start AS detector static (NOISE slot); tiny seeded velocity + per-point seed
-    dtPos.image.data.set(textures[SLOT.NOISE].image.data)
+    // Motion sessions start AS detector static (NOISE) and resolve on boot.
+    // Reduced motion runs frameloop='demand' — only a handful of computes ever
+    // happen, nowhere near enough to travel NOISE->PEAK — so seed the promised
+    // static pose (crystallized PEAK) directly and let it just sit there.
+    dtPos.image.data.set(textures[reduced ? SLOT.PEAK : SLOT.NOISE].image.data)
     const vd = dtVel.image.data
     for (let i = 0; i < vd.length; i += 4) {
-      vd[i] = (Math.random() * 2 - 1) * 0.02
-      vd[i + 1] = (Math.random() * 2 - 1) * 0.02
-      vd[i + 2] = (Math.random() * 2 - 1) * 0.02
+      vd[i] = reduced ? 0 : (Math.random() * 2 - 1) * 0.02
+      vd[i + 1] = reduced ? 0 : (Math.random() * 2 - 1) * 0.02
+      vd[i + 2] = reduced ? 0 : (Math.random() * 2 - 1) * 0.02
       vd[i + 3] = Math.random() // per-point seed/phase
     }
 
@@ -156,15 +163,16 @@ export default function ApexField({ mobile, reduced }) {
     gpu.setVariableDependencies(posVar, [posVar, velVar])
     gpu.setVariableDependencies(velVar, [posVar, velVar])
 
+    const seedSlot = reduced ? SLOT.PEAK : SLOT.NOISE
     Object.assign(velVar.material.uniforms, {
-      uTime: { value: 0 }, uDt: { value: 1 }, uBoil: { value: 0.4 },
+      uTime: { value: 0 }, uDt: { value: 1 }, uBoil: { value: reduced ? 0.05 : 0.4 },
       uResolve: { value: 1 }, uSpring: { value: 0.09 }, uDamp: { value: 0.9 },
       uFlowScale: { value: 0.22 }, uFlowSpeed: { value: 0.25 }, uMorph: { value: 0 },
-      uTargetA: { value: textures[SLOT.NOISE] }, uTargetB: { value: textures[SLOT.WORDMARK] },
+      uTargetA: { value: textures[seedSlot] }, uTargetB: { value: textures[seedSlot] },
     })
     Object.assign(posVar.material.uniforms, {
       uDt: { value: 1 }, uMorph: { value: 0 },
-      uTargetA: { value: textures[SLOT.NOISE] }, uTargetB: { value: textures[SLOT.WORDMARK] },
+      uTargetA: { value: textures[seedSlot] }, uTargetB: { value: textures[seedSlot] },
     })
 
     const err = gpu.init()
@@ -175,6 +183,10 @@ export default function ApexField({ mobile, reduced }) {
       if (gpu.dispose) gpu.dispose()
       throw new Error('[apex] GPGPU init failed: ' + err)
     }
+
+    // reduced motion: settle the seeded pose fully before the first visible
+    // frame (frameloop='demand' will never grant enough steps afterwards).
+    if (reduced) for (let i = 0; i < 40; i++) gpu.compute()
 
     // render geometry: one vertex per sim texel, carrying its reference uv
     const geometry = new THREE.BufferGeometry()
@@ -190,7 +202,10 @@ export default function ApexField({ mobile, reduced }) {
     const material = new THREE.ShaderMaterial({
       uniforms: {
         uPositions: { value: null },
-        uSize: { value: mobile ? 1.1 : 1.45 },
+        // CSS-px base (x uDpr in the shader). 0.72 @ dpr2 matches the validated
+        // retina look; 1x monitors now get the same visual thickness.
+        uSize: { value: mobile ? 0.55 : 0.72 },
+        uDpr: { value: gl.getPixelRatio() },
         uScanY: { value: -999 },
         uColor: { value: new THREE.Color('#2E9BE6') },
         uDim: { value: 1 },
@@ -208,7 +223,7 @@ export default function ApexField({ mobile, reduced }) {
     prevBundle.current = bundle
     return bundle
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [gl, sim, mobile])
+  }, [gl, sim, mobile, reduced])
 
   useEffect(() => {
     return () => disposeBundle(prevBundle.current)
@@ -252,19 +267,26 @@ export default function ApexField({ mobile, reduced }) {
     const posRT = gpu.getCurrentRenderTarget(posVar)
     material.uniforms.uPositions.value = posRT.texture
 
-    // one-shot debug: read back a few position texels so QA can confirm the sim
-    if (window.__QA_DBG__ && dbgRef.current < 1) {
+    // One-shot first-frame verification: read back a few sim texels and tell
+    // the stage whether the GPGPU output is real. NaN output -> 'apex-sim-fail'
+    // (stage keeps the SVG readout); finite -> 'apex-sim-ok' (fallback fades).
+    // A throw (float readback restricted) proves nothing — treat as ok.
+    if (dbgRef.current < 1) {
       dbgRef.current = 1
+      let ok = true
       try {
         const buf = new Float32Array(16)
         gl.readRenderTargetPixels(posRT, sim >> 1, sim >> 1, 2, 2, buf)
+        const finite = Array.from(buf).every((v) => Number.isFinite(v))
+        const allZero = Array.from(buf).every((v) => v === 0)
+        ok = finite && !allZero
         window.__apexDbg = {
-          sample: Array.from(buf.slice(0, 8)),
-          hasTex: !!posRT.texture, count, sim,
+          sample: Array.from(buf.slice(0, 8)), hasTex: !!posRT.texture, count, sim,
           matSize: material.uniforms.uSize.value,
           color: material.uniforms.uColor.value.getHexString(),
         }
       } catch (e) { window.__apexDbg = { err: String(e) } }
+      window.dispatchEvent(new CustomEvent(ok ? 'apex-sim-ok' : 'apex-sim-fail'))
     }
 
     // signal color eases toward the selected compound
@@ -272,6 +294,7 @@ export default function ApexField({ mobile, reduced }) {
     material.uniforms.uColor.value.copy(s.accent)
     material.uniforms.uScanY.value = s.scan
     material.uniforms.uDim.value = s.dim
+    material.uniforms.uDpr.value = gl.getPixelRatio() // tracks monitor moves
     material.uniforms.uOpacity.value = 1 - s.lens * 0.1 // keep the peak bright to refract
   })
 
